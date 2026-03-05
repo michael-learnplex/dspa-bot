@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DSPA Bot — UC Berkeley Data Science Peer Advisor",
+  title: "Michael-DSPA | Berkeley DS Guide",
   description:
-    "AI-powered peer advising for the UC Berkeley Data Science major",
+    "Michael-DSPA is an AI version of a former UC Berkeley Data Science Peer Advisor, helping students navigate the Data Science major.",
 };
 
 export default function RootLayout({

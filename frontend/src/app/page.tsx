@@ -272,9 +272,9 @@ export default function Home() {
       {/* ── Sidebar ── */}
       <aside className="hidden md:flex w-72 flex-col bg-berkeley-blue text-white">
         <div className="p-6 border-b border-white/10">
-          <h1 className="text-lg font-bold tracking-tight">🐻 DSPA Bot</h1>
+          <h1 className="text-lg font-bold tracking-tight">🐻 Michael-DSPA</h1>
           <p className="text-xs text-blue-200 mt-1">
-            UC Berkeley Data Science Peer Advisor
+            Knowledge from a former DS Peer Advisor.
           </p>
         </div>
 
@@ -300,9 +300,9 @@ export default function Home() {
 
         <div className="mt-auto p-6 border-t border-white/10">
           <p className="text-[10px] text-blue-300 leading-relaxed">
-            Built by Learnplex Fellows.
+            This is an independent project by Michael Florip for Learnplex.
             <br />
-            Powered by CDSS data.
+            It is NOT an official UC Berkeley tool.
           </p>
         </div>
       </aside>
@@ -311,7 +311,7 @@ export default function Home() {
       <main className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
         <header className="md:hidden bg-berkeley-blue text-white px-4 py-3 flex items-center justify-between">
-          <h1 className="text-sm font-bold">🐻 DSPA Bot</h1>
+          <h1 className="text-sm font-bold">🐻 Michael-DSPA</h1>
           <span className="text-xs text-blue-200">
             {queryCount}/{MAX_QUERIES} queries
           </span>
