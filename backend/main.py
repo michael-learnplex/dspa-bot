@@ -101,6 +101,12 @@ async def startup() -> None:
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, streaming=True)
 
 
+@app.get("/health")
+async def health():
+    """Lightweight health check for cron/load balancers. Not rate-limited."""
+    return {"status": "ok"}
+
+
 @app.get("/session")
 async def get_session(request: Request):
     session_id = request.headers.get("X-Session-ID", "anonymous")
