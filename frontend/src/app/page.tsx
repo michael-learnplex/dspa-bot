@@ -34,6 +34,12 @@ const SAMPLE_QUERIES = [
   },
 ];
 
+const QUICK_ACTIONS = [
+  { label: "Major Requirements", query: "Major Requirements" },
+  { label: "Research & Orgs", query: "Research & Orgs" },
+  { label: "Course Planning", query: "Course Planning" },
+];
+
 function generateSessionId(): string {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -280,6 +286,7 @@ export default function Home() {
   );
 
   const showLoadingSteps = status === "submitted";
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -323,13 +330,75 @@ export default function Home() {
 
       {/* ── Main ── */}
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Mobile header */}
+        {/* Mobile header with hamburger */}
         <header className="md:hidden bg-berkeley-blue text-white px-4 py-3 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="p-2 -ml-2 rounded-lg hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Open menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           <h1 className="text-sm font-bold">🐻 Michael-DSPA</h1>
-          <span className="text-xs text-blue-200">
-            {queryCount}/{MAX_QUERIES} queries
+          <span className="text-xs text-blue-200 min-w-[4rem] text-right">
+            {queryCount}/{MAX_QUERIES}
           </span>
         </header>
+
+        {/* Mobile drawer: Usage Tracker (collapsible) */}
+        {drawerOpen && (
+          <>
+            <div
+              className="md:hidden fixed inset-0 bg-black/40 z-40"
+              aria-hidden
+              onClick={() => setDrawerOpen(false)}
+            />
+            <aside className="md:hidden fixed top-0 left-0 bottom-0 w-72 max-w-[85vw] bg-berkeley-blue text-white z-50 flex flex-col shadow-xl">
+              <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                <span className="font-bold">🐻 Michael-DSPA</span>
+                <button
+                  type="button"
+                  onClick={() => setDrawerOpen(false)}
+                  className="p-2 rounded-lg hover:bg-white/10 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Close menu"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="p-6">
+                <p className="text-xs font-semibold uppercase tracking-wider text-blue-300 mb-3">
+                  Usage Tracker
+                </p>
+                <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-california-gold"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(queryCount / MAX_QUERIES) * 100}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  />
+                </div>
+                <p className="text-sm text-blue-200 mt-2">
+                  Queries used:{" "}
+                  <span className="font-semibold text-white">
+                    {queryCount}/{MAX_QUERIES}
+                  </span>
+                </p>
+              </div>
+              <div className="mt-auto p-6 border-t border-white/10">
+                <p className="text-[10px] text-blue-300 leading-relaxed">
+                  This is an independent project by Michael Florip for Learnplex.
+                  <br />
+                  It is NOT an official UC Berkeley tool.
+                </p>
+              </div>
+            </aside>
+          </>
+        )}
 
         {/* Error banner */}
         {backendError && (
@@ -355,7 +424,7 @@ export default function Home() {
               >
                 <div className="text-5xl mb-4">🐻</div>
                 <h2 className="text-2xl font-bold text-berkeley-blue mb-2">
-                  Data Science Peer Advisor
+                  Michael-DSPA
                 </h2>
                 <p className="text-gray-500 mb-8 max-w-md">
                   Ask me about major requirements, course planning, domain
@@ -402,7 +471,7 @@ export default function Home() {
                   }`}
                 >
                   <div
-                    className={`relative max-w-[85%] md:max-w-[70%] rounded-2xl px-5 py-3.5 shadow-sm ${
+                    className={`relative w-full max-w-[85%] md:max-w-[70%] rounded-2xl px-5 py-3.5 shadow-sm ${
                       isUser
                         ? "bg-berkeley-blue text-white"
                         : "bg-white border border-gray-200 text-gray-800"
@@ -432,6 +501,26 @@ export default function Home() {
                         feedback={feedback}
                         onFeedback={handleFeedback}
                       />
+                    )}
+
+                    {/* Quick Actions (touch-friendly: min 44x44px, 8px gap) */}
+                    {!isUser && !isStreamingThis && (
+                      <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
+                        {QUICK_ACTIONS.map(({ label, query }) => (
+                          <button
+                            key={label}
+                            type="button"
+                            onClick={() => {
+                              if (!limitReached && !isActive)
+                                sendMessage({ text: query });
+                            }}
+                            disabled={limitReached || isActive}
+                            className="min-h-[44px] min-w-[44px] px-4 py-3 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-40"
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </motion.div>
@@ -475,7 +564,8 @@ export default function Home() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about the Data Science major…"
                 disabled={isActive}
-                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-berkeley-blue/40 focus:border-berkeley-blue disabled:bg-gray-50 transition-all"
+                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-berkeley-blue/40 focus:border-berkeley-blue disabled:bg-gray-50 transition-all min-w-0"
+                style={{ fontSize: "16px" }}
               />
               <motion.button
                 type="submit"
