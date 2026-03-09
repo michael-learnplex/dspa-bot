@@ -13,6 +13,7 @@
     "ai": "latest",
     "framer-motion": "latest",
     "next": "latest",
+    "next-auth": "^5.0.0-beta.30",
     "react": "latest",
     "react-dom": "latest",
     "react-markdown": "latest"

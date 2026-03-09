@@ -12,10 +12,12 @@ import {
   type FormEvent,
 } from "react";
 import ReactMarkdown from "react-markdown";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 const MAX_QUERIES = 10;
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://michael-dspa-backend.onrender.com";
 
 const SAMPLE_QUERIES = [
   {
@@ -207,6 +209,9 @@ function getSourceParts(msg: any): any[] {
 /* ─── Main Page ─── */
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated" && !!session?.idToken;
+
   const [sessionId] = useState(generateSessionId);
   const [queryCount, setQueryCount] = useState(0);
   const [input, setInput] = useState("");
@@ -220,7 +225,12 @@ export default function Home() {
     const chatUrl = `${API_URL}/chat`;
     return new DefaultChatTransport({
       api: chatUrl,
-      headers: { "X-Session-ID": sessionId },
+      headers: {
+        "X-Session-ID": sessionId,
+        Authorization: session?.idToken
+          ? `Bearer ${session.idToken}`
+          : "",
+      },
       fetch: async (input, init) => {
         const response = await fetch(input, init);
         if (response.status === 429) {
@@ -231,9 +241,13 @@ export default function Home() {
         return response;
       },
     });
-  }, [sessionId]);
+  }, [sessionId, session?.idToken]);
 
-  const { messages, sendMessage, status } = useChat({
+  const {
+    messages,
+    sendMessage,
+    status: chatStatus,
+  } = useChat({
     transport,
     onFinish: () => setQueryCount((c) => c + 1),
     onError: (err) => {
@@ -256,11 +270,12 @@ export default function Home() {
     },
   });
 
-  const isActive = status === "submitted" || status === "streaming";
+  const isActive =
+    chatStatus === "submitted" || chatStatus === "streaming";
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, status]);
+  }, [messages, chatStatus]);
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
@@ -285,8 +300,37 @@ export default function Home() {
     [],
   );
 
-  const showLoadingSteps = status === "submitted";
+  const showLoadingSteps = chatStatus === "submitted";
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-berkeley-blue text-white flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="text-6xl mb-2">🐻</div>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Michael-DSPA
+          </h1>
+          <p className="text-sm text-blue-100">
+            Private AI peer advising for the UC Berkeley Data Science major.
+            Sign in with your Berkeley Google account to get started.
+          </p>
+          <button
+            type="button"
+            onClick={() => signIn("google")}
+            className="mt-4 inline-flex items-center justify-center w-full max-w-xs mx-auto rounded-full bg-california-gold text-berkeley-blue font-semibold text-base px-6 py-3 shadow-lg hover:bg-yellow-400 transition-colors min-h-[48px]"
+          >
+            Sign in with Berkeley Google Account
+          </button>
+          <p className="text-[11px] text-blue-200 mt-2">
+            Access is restricted to @berkeley.edu addresses to protect student
+            privacy and keep this tool focused on Berkeley&apos;s Data Science
+            program.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -330,8 +374,8 @@ export default function Home() {
 
       {/* ── Main ── */}
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Mobile header with hamburger */}
-        <header className="md:hidden bg-berkeley-blue text-white px-4 py-3 flex items-center justify-between">
+        {/* Mobile header with hamburger + sign out */}
+        <header className="md:hidden bg-berkeley-blue text-white px-4 py-3 flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
@@ -342,10 +386,21 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-sm font-bold">🐻 Michael-DSPA</h1>
-          <span className="text-xs text-blue-200 min-w-[4rem] text-right">
-            {queryCount}/{MAX_QUERIES}
-          </span>
+          <h1 className="text-sm font-bold flex-1 text-center">
+            🐻 Michael-DSPA
+          </h1>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-blue-200 min-w-[3.5rem] text-right">
+              {queryCount}/{MAX_QUERIES}
+            </span>
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="text-[10px] px-2 py-1 rounded-full border border-white/30 text-white/80 hover:bg-white/10"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
 
         {/* Mobile drawer: Usage Tracker (collapsible) */}

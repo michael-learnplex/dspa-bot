@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 os.environ.setdefault("USER_AGENT", "Learnplex-DataScience-Bot/1.0")
 
-from fastapi import FastAPI, Request  # noqa: E402
+from fastapi import Depends, FastAPI, HTTPException, Request, status  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.responses import StreamingResponse  # noqa: E402
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings  # noqa: E402
@@ -23,6 +23,8 @@ from pinecone import Pinecone  # noqa: E402
 from slowapi import Limiter, _rate_limit_exceeded_handler  # noqa: E402
 from slowapi.errors import RateLimitExceeded  # noqa: E402
 from slowapi.util import get_remote_address  # noqa: E402
+from google.oauth2 import id_token  # noqa: E402
+from google.auth.transport import requests as google_requests  # noqa: E402
 
 from config import MAX_QUERIES_PER_SESSION, PINECONE_HOST, SYSTEM_PROMPT  # noqa: E402
 
@@ -51,7 +53,7 @@ app.add_middleware(
     ],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type", "X-Session-ID"],
 )
 
 STREAM_HEADERS = {
@@ -82,6 +84,44 @@ def _extract_question(messages: list[dict]) -> str:
     if parts:
         return " ".join(p.get("text", "") for p in parts if p.get("type") == "text").strip()
     return last.get("content", "")
+
+
+def verify_berkeley_token(request: Request) -> str:
+    """Verify Google ID token and ensure the user has a berkeley.edu email."""
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing or invalid Authorization header",
+        )
+
+    token = auth_header.split(" ", 1)[1].strip()
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+    if not client_id:
+        print("ERROR: GOOGLE_CLIENT_ID not found in environment variables")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="GOOGLE_CLIENT_ID is not configured on the server",
+        )
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(), client_id
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google ID token",
+        )
+
+    email = (idinfo or {}).get("email") or ""
+    if not email.endswith("@berkeley.edu"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to berkeley.edu accounts",
+        )
+
+    return email
 
 
 @app.on_event("startup")
@@ -119,7 +159,10 @@ async def get_session(request: Request):
 
 @app.post("/chat")
 @limiter.limit("10/minute")
-async def chat(request: Request):
+async def chat(
+    request: Request,
+    user_email: str = Depends(verify_berkeley_token),
+):
     body = await request.json()
     session_id = request.headers.get("X-Session-ID", "anonymous")
 
