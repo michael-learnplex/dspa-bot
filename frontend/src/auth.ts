@@ -38,11 +38,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
      * Token callback: capture Google's ID token on initial sign-in
      * so we can forward it to the FastAPI backend.
      */
-    async jwt({ token, account }) {
-      // account is only defined on initial sign-in
-      if (account && (account as any).id_token) {
-        // Persist the Google ID token on our JWT
-        (token as any).idToken = (account as any).id_token;
+    async jwt({ token, account, profile }) {
+      if (account) {
+        console.log("DEBUG: ACCOUNT OBJECT RECEIVED", Object.keys(account));
+        token.idToken = account.id_token;
       }
       return token;
     },
