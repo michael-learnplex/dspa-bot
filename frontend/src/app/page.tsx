@@ -211,7 +211,6 @@ function getSourceParts(msg: any): any[] {
 export default function Home() {
   const { data: session, status: authStatus } = useSession();
   const isAuthenticated = authStatus === "authenticated" && !!session?.idToken;
-
   const [sessionId] = useState(generateSessionId);
   const [queryCount, setQueryCount] = useState(0);
   const [input, setInput] = useState("");
