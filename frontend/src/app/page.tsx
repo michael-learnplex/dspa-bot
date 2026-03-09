@@ -12,7 +12,7 @@ import {
   type FormEvent,
 } from "react";
 import ReactMarkdown from "react-markdown";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn, signOut, getSession } from "next-auth/react";
 
 const MAX_QUERIES = 10;
 const API_URL =
@@ -231,10 +231,11 @@ export default function Home() {
         "X-Session-ID": sessionId,
       },
       fetch: async (input, init = {}) => {
+        const freshSession = await getSession();
         init.headers = {
           ...(init.headers || {}),
-          Authorization: session?.idToken
-            ? `Bearer ${session.idToken}`
+          Authorization: freshSession?.idToken
+            ? `Bearer ${freshSession.idToken}`
             : "",
         };
         const response = await fetch(input, init);
