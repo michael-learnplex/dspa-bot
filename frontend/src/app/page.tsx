@@ -312,7 +312,7 @@ export default function Home() {
             Michael-DSPA
           </h1>
           <p className="text-sm text-blue-100">
-            Private AI peer advising for the UC Berkeley Data Science major.
+            AI peer advising for the UC Berkeley Data Science major.
             Sign in with your Berkeley Google account to get started.
           </p>
           <button
@@ -325,7 +325,8 @@ export default function Home() {
           <p className="text-[11px] text-blue-200 mt-2">
             Access is restricted to @berkeley.edu addresses to protect student
             privacy and keep this tool focused on Berkeley&apos;s Data Science
-            program.
+            program. This tool is an independent project by Michael Florip for Learnplex.
+            This is NOT an official UC Berkeley tool.
           </p>
         </div>
       </div>
