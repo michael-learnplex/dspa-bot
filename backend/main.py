@@ -43,9 +43,9 @@ app = FastAPI(title="DSPA Bot API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# CORS must be the first middleware so preflight OPTIONS is handled before any other logic
 app.add_middleware(
     CORSMiddleware,
-    # Production frontend origins (HTTPS). Add any new production domains here so mobile/desktop can call the API.
     allow_origins=[
         "https://michael-dspa-frontend.vercel.app",
         "https://michael-dspa.learnplex.dev",
@@ -53,8 +53,8 @@ app.add_middleware(
         "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["Authorization", "Content-Type", "X-Session-ID"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "x-session-id", "Accept", "Origin"],
 )
 
 STREAM_HEADERS = {
