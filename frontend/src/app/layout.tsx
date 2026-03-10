@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthSessionProvider } from "./providers";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "Michael-DSPA | Your AI Peer Advisor",
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <AuthSessionProvider>{children}</AuthSessionProvider>
+        <Analytics />
       </body>
     </html>
   );
