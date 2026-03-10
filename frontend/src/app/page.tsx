@@ -368,7 +368,10 @@ export default function Home() {
 
           {/* About Glassmorphism Card */}
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl max-w-2xl mx-auto my-8 w-full text-center">
-            <p className="text-blue-100 text-sm leading-relaxed">
+            <p
+              className="text-blue-100 text-sm leading-relaxed max-w-prose mx-auto text-balance"
+              style={{ textWrap: "balance" }}
+            >
               Trained on years of Peer Advising experience at UC Berkeley,
               official CDSS requirements, and Berkeley career resources.
               Michael-DSPA provides student-first guidance on your Data Science
@@ -378,7 +381,7 @@ export default function Home() {
 
           {/* How it Works Feature Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
-            <div className="text-center">
+            <div className="text-center transition-transform hover:-translate-y-1">
               <p className="text-white text-sm">📚</p>
               <p className="mt-2 font-bold text-sm text-white">
                 Academic Logic
@@ -387,7 +390,7 @@ export default function Home() {
                 2024-2026 Degree Requirements
               </p>
             </div>
-            <div className="text-center">
+            <div className="text-center transition-transform hover:-translate-y-1">
               <p className="text-white text-sm">💼</p>
               <p className="mt-2 font-bold text-sm text-white">
                 Career Focus
@@ -396,8 +399,13 @@ export default function Home() {
                 DS Internships, Resumes, & Interview Prep
               </p>
             </div>
-            <div className="text-center">
-              <p className="text-white text-sm">🔗</p>
+            <div className="text-center transition-transform hover:-translate-y-1">
+              <p className="text-white text-sm flex items-center justify-center gap-1">
+                🔗
+                <span className="inline-flex items-center gap-0.5 text-green-400 text-[10px] font-medium bg-green-400/20 px-1.5 py-0.5 rounded">
+                  ✓ Verified Info
+                </span>
+              </p>
               <p className="mt-2 font-bold text-sm text-white">
                 Official Sources
               </p>
@@ -419,7 +427,7 @@ export default function Home() {
           </div>
 
           {/* Disclaimer */}
-          <p className="text-[10px] text-blue-200/80 text-center max-w-md pt-2">
+          <p className="text-[10px] text-blue-200/80 text-center max-w-md pt-3 leading-relaxed">
             Michael-DSPA is an independent AI project. Always verify requirements
             with an official Data Science Undergraduate Studies staff advisor.
             Access is restricted to @berkeley.edu accounts.
