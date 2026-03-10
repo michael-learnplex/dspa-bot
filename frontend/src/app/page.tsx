@@ -16,9 +16,21 @@ import ReactMarkdown from "react-markdown";
 import { useSession, signIn, signOut, getSession } from "next-auth/react";
 
 const MAX_QUERIES = 10;
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://michael-dspa-backend.onrender.com";
+
+const DEFAULT_API_URL = "https://michael-dspa-backend.onrender.com";
+
+/** Use env API URL; when site is HTTPS, force API to HTTPS to avoid mixed-content "Load failed" on mobile. */
+function getApiUrl(): string {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
+  if (
+    typeof window !== "undefined" &&
+    window.location?.protocol === "https:" &&
+    base.startsWith("http://")
+  ) {
+    return base.replace("http://", "https://");
+  }
+  return base;
+}
 
 const SAMPLE_QUERIES = [
   {
@@ -245,7 +257,7 @@ export default function Home() {
     authStatus === "authenticated" && !!session?.idToken;
 
   const transport = useMemo(() => {
-    const chatUrl = `${API_URL}/chat`;
+    const chatUrl = `${getApiUrl()}/chat`;
     return new DefaultChatTransport({
       api: chatUrl,
       headers: {
@@ -285,7 +297,7 @@ export default function Home() {
         err.message?.includes("NetworkError")
       ) {
         setBackendError(
-          `Cannot reach the backend. Make sure the FastAPI server is running on ${API_URL}`,
+          `Cannot reach the backend. Make sure the FastAPI server is running on ${getApiUrl()}`,
         );
       } else if (
         err.message?.includes("429") ||

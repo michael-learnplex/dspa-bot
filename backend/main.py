@@ -45,6 +45,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
+    # Production frontend origins (HTTPS). Add any new production domains here so mobile/desktop can call the API.
     allow_origins=[
         "https://michael-dspa-frontend.vercel.app",
         "https://michael-dspa.learnplex.dev",
