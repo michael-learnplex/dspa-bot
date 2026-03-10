@@ -206,6 +206,33 @@ function getSourceParts(msg: any): any[] {
   );
 }
 
+/**
+ * Parses assistant message content for optional [SUGGESTIONS] block.
+ * Returns display text and an array of follow-up suggestion strings.
+ */
+function parseMessage(content: string): { text: string; suggestions: string[] } {
+  const marker = "[SUGGESTIONS]";
+  if (!content.includes(marker)) {
+    return { text: content, suggestions: [] };
+  }
+  const [textPart, jsonPart] = content.split(marker, 2);
+  const text = (textPart ?? "").trim();
+  let suggestions: string[] = [];
+  if (jsonPart) {
+    try {
+      const parsed = JSON.parse(jsonPart.trim()) as unknown;
+      if (Array.isArray(parsed)) {
+        suggestions = parsed.filter(
+          (item): item is string => typeof item === "string",
+        );
+      }
+    } catch {
+      // ignore invalid JSON
+    }
+  }
+  return { text, suggestions };
+}
+
 /* ─── Main Page ─── */
 
 export default function Home() {
@@ -546,12 +573,23 @@ export default function Home() {
           <AnimatePresence mode="popLayout">
             {messages.map((msg) => {
               const isUser = msg.role === "user";
-              const textContent = getTextContent(msg);
+              const rawContent = getTextContent(msg);
+              const { text: displayText, suggestions } = isUser
+                ? { text: rawContent, suggestions: [] as string[] }
+                : parseMessage(rawContent);
               const sourceParts = !isUser ? getSourceParts(msg) : [];
               const isStreamingThis =
-                status === "streaming" &&
+                chatStatus === "streaming" &&
                 !isUser &&
                 msg.id === messages[messages.length - 1]?.id;
+              const lastAssistantMessage = [...messages]
+                .reverse()
+                .find((m) => m.role === "assistant");
+              const isLastAssistantWithSuggestions =
+                !isUser &&
+                !isStreamingThis &&
+                lastAssistantMessage?.id === msg.id &&
+                suggestions.length > 0;
 
               return (
                 <motion.div
@@ -573,10 +611,10 @@ export default function Home() {
                     }`}
                   >
                     {isUser ? (
-                      <p className="text-sm leading-relaxed">{textContent}</p>
+                      <p className="text-sm leading-relaxed">{displayText}</p>
                     ) : (
                       <div className="prose prose-sm max-w-none prose-headings:text-berkeley-blue prose-a:text-founders-rock">
-                        <ReactMarkdown>{textContent}</ReactMarkdown>
+                        <ReactMarkdown>{displayText}</ReactMarkdown>
                       </div>
                     )}
 
@@ -596,6 +634,26 @@ export default function Home() {
                         feedback={feedback}
                         onFeedback={handleFeedback}
                       />
+                    )}
+
+                    {/* AI-generated suggestion buttons (last assistant message only) */}
+                    {isLastAssistantWithSuggestions && (
+                      <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
+                        {suggestions.map((suggestionText, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => {
+                              if (!limitReached && !isActive)
+                                sendMessage({ text: suggestionText });
+                            }}
+                            disabled={limitReached || isActive}
+                            className="min-h-[44px] min-w-[44px] px-4 py-3 rounded-lg text-sm font-medium bg-berkeley-blue/10 text-berkeley-blue hover:bg-berkeley-blue/20 transition-colors disabled:opacity-40"
+                          >
+                            {suggestionText}
+                          </button>
+                        ))}
+                      </div>
                     )}
 
                     {/* Quick Actions (touch-friendly: min 44x44px, 8px gap) */}
