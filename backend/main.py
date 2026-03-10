@@ -16,7 +16,7 @@ os.environ.setdefault("USER_AGENT", "Learnplex-DataScience-Bot/1.0")
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from fastapi.responses import StreamingResponse  # noqa: E402
+from fastapi.responses import Response, StreamingResponse  # noqa: E402
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings  # noqa: E402
 from langchain_core.messages import SystemMessage, HumanMessage  # noqa: E402
 from pinecone import Pinecone  # noqa: E402
@@ -42,6 +42,20 @@ limiter = Limiter(key_func=_rate_limit_key)
 app = FastAPI(title="DSPA Bot API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.middleware("http")
+async def add_cors_header(request: Request, call_next):
+    # TEMP "nuclear" preflight bypass to stop Render 400s and log mobile Origin.
+    if request.method == "OPTIONS":
+        origin = request.headers.get("Origin")
+        print(f"Preflight from: {origin}")
+        response = Response()
+        response.headers["Access-Control-Allow-Origin"] = origin or "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, x-session-id"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        return response
+    return await call_next(request)
 
 
 @app.options("/{rest_of_path:path}")
@@ -266,21 +280,10 @@ def _query_pinecone(question: str):
 # CORSMiddleware must be the LAST add_middleware call so it runs first on incoming requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://michael-dspa-frontend.vercel.app",
-        "https://michael-dspa.learnplex.dev",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=[
-        "x-session-id",
-        "X-Session-ID",
-        "Authorization",
-        "Content-Type",
-        "Accept",
-        "Origin",
-    ],
+    # TEMP: simplest possible CORS to validate that Origin matching isn't the issue.
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
     max_age=600,
 )
