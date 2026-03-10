@@ -36,12 +36,6 @@ const SAMPLE_QUERIES = [
   },
 ];
 
-const QUICK_ACTIONS = [
-  { label: "Major Requirements", query: "Major Requirements" },
-  { label: "Research & Orgs", query: "Research & Orgs" },
-  { label: "Course Planning", query: "Course Planning" },
-];
-
 function generateSessionId(): string {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -656,25 +650,6 @@ export default function Home() {
                       </div>
                     )}
 
-                    {/* Quick Actions (touch-friendly: min 44x44px, 8px gap) */}
-                    {!isUser && !isStreamingThis && (
-                      <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
-                        {QUICK_ACTIONS.map(({ label, query }) => (
-                          <button
-                            key={label}
-                            type="button"
-                            onClick={() => {
-                              if (!limitReached && !isActive)
-                                sendMessage({ text: query });
-                            }}
-                            disabled={limitReached || isActive}
-                            className="min-h-[44px] min-w-[44px] px-4 py-3 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-40"
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </motion.div>
               );
