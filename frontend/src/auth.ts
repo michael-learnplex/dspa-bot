@@ -8,6 +8,9 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  pages: {
+    error: "/auth/error",
+  },
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
