@@ -21,18 +21,18 @@ const API_URL =
 
 const SAMPLE_QUERIES = [
   {
-    label: "Linear Algebra Options",
+    label: "Internship & Job Search",
     query:
-      "What are the linear algebra course options for the Data Science major?",
+      "What resources or advice do you have for Data Science students looking for internships and jobs?",
   },
   {
-    label: "The C- Rule",
-    query: "What is the C- rule for Data Science major requirements?",
+    label: "Data Science Career Resources",
+    query: "What career resources are available for Data Science majors at Berkeley?",
   },
   {
-    label: "Data Science Clubs",
+    label: "Resume & Interview Prep",
     query:
-      "What Data Science student clubs and organizations are at Berkeley?",
+      "What resume and interview prep resources or tips are available for Data Science students?",
   },
 ];
 
