@@ -342,30 +342,86 @@ export default function Home() {
 
   if (!isSessionReady) {
     return (
-      <div className="min-h-screen bg-berkeley-blue text-white flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="text-6xl mb-2">🐻</div>
-          <h1 className="text-3xl font-extrabold tracking-tight">
-            Michael-DSPA
-          </h1>
-          <p className="text-sm text-blue-100">
-            AI peer advising for the UC Berkeley Data Science major. Sign in
-            with your Berkeley Google account to get started.
+      <div className="min-h-screen bg-berkeley-blue text-white flex items-center justify-center px-4 py-12">
+        <motion.div
+          className="flex flex-col items-center justify-center space-y-6 w-full max-w-2xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Hero Persona Card */}
+          <div className="flex flex-col items-center text-center">
+            <Image
+              src="/michael_headshot.jpeg"
+              alt="Michael"
+              width={96}
+              height={96}
+              className="w-24 h-24 rounded-full border-4 border-california-gold shadow-lg mb-4 mx-auto object-cover"
+            />
+            <h1 className="text-4xl font-bold text-white">
+              Michael-DSPA
+            </h1>
+            <p className="text-california-gold font-medium tracking-wide uppercase text-sm mt-1">
+              Your AI Data Science Peer Advisor
+            </p>
+          </div>
+
+          {/* About Glassmorphism Card */}
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl max-w-2xl mx-auto my-8 w-full text-center">
+            <p className="text-blue-100 text-sm leading-relaxed">
+              Trained on years of Peer Advising experience at UC Berkeley,
+              official CDSS requirements, and Berkeley career resources.
+              Michael-DSPA provides student-first guidance on your Data Science
+              journey.
+            </p>
+          </div>
+
+          {/* How it Works Feature Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+            <div className="text-center">
+              <p className="text-blue-100/80 text-xs">
+                📚 Academic Logic
+              </p>
+              <p className="text-blue-100/80 text-xs mt-1">
+                2024-2026 Degree Requirements
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-blue-100/80 text-xs">
+                💼 Career Focus
+              </p>
+              <p className="text-blue-100/80 text-xs mt-1">
+                DS Internships, Resumes, & Interview Prep
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-blue-100/80 text-xs">
+                🔗 Official Sources
+              </p>
+              <p className="text-blue-100/80 text-xs mt-1">
+                Direct links to CDSS & Career Center docs
+              </p>
+            </div>
+          </div>
+
+          {/* Sign in button (same slot as SAMPLE_QUERIES on authenticated view) */}
+          <div className="flex flex-wrap gap-3 justify-center">
+            <button
+              type="button"
+              onClick={() => signIn("google")}
+              className="px-6 py-3 rounded-full bg-california-gold text-berkeley-blue font-semibold text-base shadow-lg hover:bg-yellow-400 transition-colors min-h-[48px]"
+            >
+              Sign in with Berkeley Google Account
+            </button>
+          </div>
+
+          {/* Disclaimer */}
+          <p className="text-[10px] text-blue-200/80 text-center max-w-md pt-2">
+            Michael-DSPA is an independent AI project. Always verify requirements
+            with an official Data Science Undergraduate Studies staff advisor.
+            Access is restricted to @berkeley.edu accounts.
           </p>
-          <button
-            type="button"
-            onClick={() => signIn("google")}
-            className="mt-4 inline-flex items-center justify-center w-full max-w-xs mx-auto rounded-full bg-california-gold text-berkeley-blue font-semibold text-base px-6 py-3 shadow-lg hover:bg-yellow-400 transition-colors min-h-[48px]"
-          >
-            Sign in with Berkeley Google Account
-          </button>
-          <p className="text-[11px] text-blue-200 mt-2">
-            Access is restricted to @berkeley.edu addresses to protect student
-            privacy and keep this tool focused on Berkeley&apos;s Data Science
-            program. This tool is an independent project by Michael Florip for
-            Learnplex. This is NOT an official UC Berkeley tool.
-          </p>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -533,70 +589,30 @@ export default function Home() {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
           {messages.length === 0 && !isActive && (
-            <div className="flex flex-col items-center justify-center min-h-full bg-berkeley-blue text-white py-12 px-4">
+            <div className="flex flex-col items-center justify-center min-h-full py-12 px-4">
               <motion.div
-                className="flex flex-col items-center justify-center space-y-6 w-full max-w-2xl"
-                initial={{ opacity: 0, y: 20 }}
+                className="flex flex-col items-center justify-center space-y-4 w-full max-w-xl text-center"
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.35 }}
               >
-                {/* Hero Persona Card */}
-                <div className="flex flex-col items-center text-center">
-                  <Image
-                    src="/michael_headshot.jpeg"
-                    alt="Michael"
-                    width={96}
-                    height={96}
-                    className="w-24 h-24 rounded-full border-4 border-california-gold shadow-lg mb-4 mx-auto object-cover"
-                  />
-                  <h2 className="text-4xl font-bold text-white">
-                    Michael-DSPA
-                  </h2>
-                  <p className="text-california-gold font-medium tracking-wide uppercase text-sm mt-1">
-                    Your AI Data Science Peer Advisor
-                  </p>
-                </div>
-
-                {/* About Glassmorphism Card */}
-                <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl max-w-2xl mx-auto my-8 w-full text-center">
-                  <p className="text-blue-100 text-sm leading-relaxed">
-                    Trained on years of Peer Advising experience at UC Berkeley,
-                    official CDSS requirements, and Berkeley career resources.
-                    Michael-DSPA provides student-first guidance on your Data
-                    Science journey.
-                  </p>
-                </div>
-
-                {/* How it Works Feature Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
-                  <div className="text-center">
-                    <p className="text-blue-100/80 text-xs">
-                      📚 Academic Logic
-                    </p>
-                    <p className="text-blue-100/80 text-xs mt-1">
-                      2024-2026 Degree Requirements
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-blue-100/80 text-xs">
-                      💼 Career Focus
-                    </p>
-                    <p className="text-blue-100/80 text-xs mt-1">
-                      DS Internships, Resumes, & Interview Prep
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-blue-100/80 text-xs">
-                      🔗 Official Sources
-                    </p>
-                    <p className="text-blue-100/80 text-xs mt-1">
-                      Direct links to CDSS & Career Center docs
-                    </p>
-                  </div>
-                </div>
+                {/* Compact empty state: small headshot + title + prompt */}
+                <Image
+                  src="/michael_headshot.jpeg"
+                  alt="Michael"
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded-full border-2 border-california-gold object-cover"
+                />
+                <h2 className="text-xl font-bold text-berkeley-blue">
+                  Michael-DSPA
+                </h2>
+                <p className="text-gray-500 text-sm">
+                  How can I help you today?
+                </p>
 
                 {/* Sample query pills */}
-                <div className="flex flex-wrap gap-3 justify-center">
+                <div className="flex flex-wrap gap-3 justify-center pt-2">
                   {SAMPLE_QUERIES.map(({ label, query }) => (
                     <motion.button
                       key={label}
@@ -610,13 +626,6 @@ export default function Home() {
                     </motion.button>
                   ))}
                 </div>
-
-                {/* Disclaimer */}
-                <p className="text-[10px] text-blue-200/80 text-center max-w-md pt-2">
-                  Michael-DSPA is an independent AI project. Always verify
-                  requirements with an official Data Science Undergraduate
-                  Studies staff advisor.
-                </p>
               </motion.div>
             </div>
           )}
