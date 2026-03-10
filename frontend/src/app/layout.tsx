@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Michael-DSPA is an AI version of a former UC Berkeley Data Science Peer Advisor, helping students navigate the Data Science major.",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    icon: "/michael_headshot.jpeg",
   },
 };
 
