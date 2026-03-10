@@ -3,11 +3,16 @@ import "./globals.css";
 import { AuthSessionProvider } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Michael-DSPA | Berkeley DS Guide",
+  title: "Michael-DSPA | Your AI Peer Advisor",
   description:
-    "Michael-DSPA is an AI version of a former UC Berkeley Data Science Peer Advisor, helping students navigate the Data Science major.",
+    "A personalized AI guide for UC Berkeley Data Science students, trained on years of peer advising experience and official CDSS resources.",
   icons: {
     icon: "/michael_headshot.jpeg",
+  },
+  openGraph: {
+    title: "Michael-DSPA | Your AI Peer Advisor",
+    description:
+      "A personalized AI guide for UC Berkeley Data Science students, trained on years of peer advising experience and official CDSS resources.",
   },
 };
 
