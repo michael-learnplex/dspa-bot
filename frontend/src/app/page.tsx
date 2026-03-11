@@ -260,6 +260,7 @@ export default function Home() {
   const [feedback, setFeedback] = useState<Record<string, "up" | "down">>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const [backendError, setBackendError] = useState<string | null>(null);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const limitReached = queryCount >= MAX_QUERIES;
 
@@ -282,20 +283,41 @@ export default function Home() {
               ? input.url
               : String(input);
         console.log("Connecting to:", requestUrl);
-        const freshSession = await getSession();
-        init.headers = {
-          ...(init.headers || {}),
-          Authorization: freshSession?.idToken
-            ? `Bearer ${freshSession.idToken}`
-            : "",
-        };
-        const response = await fetch(input, init);
-        if (response.status === 429) {
-          throw new Error(
-            "Whoa there! You're sending messages too fast. Please wait a minute.",
-          );
+        try {
+          const freshSession = await getSession();
+          init.headers = {
+            ...(init.headers || {}),
+            Authorization: freshSession?.idToken
+              ? `Bearer ${freshSession.idToken}`
+              : "",
+          };
+
+          const response = await fetch(input, init);
+
+          if (response.status === 401 || response.status === 403) {
+            setIsSessionExpired(true);
+            setBackendError(null);
+            throw new Error("Session expired");
+          }
+
+          if (response.status === 429) {
+            throw new Error(
+              "Whoa there! You're sending messages too fast. Please wait a minute.",
+            );
+          }
+
+          return response;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (
+            msg.toLowerCase().includes("invalid google") ||
+            msg.toLowerCase().includes("session expired")
+          ) {
+            setIsSessionExpired(true);
+            setBackendError(null);
+          }
+          throw err;
         }
-        return response;
       },
     });
   }, [sessionId, session?.idToken]);
@@ -469,6 +491,41 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Session expired modal */}      
+      {isSessionExpired && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsSessionExpired(false)}
+          />
+          <div className="relative w-full max-w-md rounded-2xl bg-white shadow-xl border border-gray-200 p-6">
+            <h2 className="text-lg font-bold text-berkeley-blue">
+              Session Expired
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              Your Berkeley Google session has timed out for security. Please
+              sign in again to continue.
+            </p>
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsSessionExpired(false)}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
+              >
+                Not now
+              </button>
+              <button
+                type="button"
+                onClick={() => signIn("google")}
+                className="px-5 py-2.5 text-sm rounded-lg bg-california-gold text-berkeley-blue font-semibold hover:bg-yellow-400 transition-colors"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Sidebar ── */}
       <aside className="hidden md:flex w-72 flex-col h-full bg-berkeley-blue text-white">
         <div className="p-6 border-b border-white/10">
